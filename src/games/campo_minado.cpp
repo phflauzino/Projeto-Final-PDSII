@@ -1,72 +1,94 @@
 #include "campo_minado.hpp"
+#include <iostream>
+#include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <iostream>
 
-// Construtor
-CampoMinado::CampoMinado(int tamanho, int minas) : Tabuleiro(tamanho), minas(minas) {
-    tabuleiroVisivel = std::vector<std::vector<char>>(tamanho, std::vector<char>(tamanho, '-'));
-    gerarMinas();
-    calcularNumeros();
+CampoMinado::CampoMinado(Jogador* jogador) : jogador(jogador), tamanho(8), numMinas(10) {
+    inicializarTabuleiro();
+    posicionarMinas();
 }
 
-// Gerar minas aleatórias
-void CampoMinado::gerarMinas() {
-    srand(time(0));
-    for (int i = 0; i < minas; i++) {
-        int x, y;
-        do {
-            x = rand() % tamanho;
-            y = rand() % tamanho;
-        } while (tabuleiro[x][y] == '*');
-        tabuleiro[x][y] = '*';
+void CampoMinado::inicializarTabuleiro() {
+    tabuleiro.resize(tamanho, std::vector<char>(tamanho, '-'));
+    tabuleiroVisivel.resize(tamanho, std::vector<char>(tamanho, '-'));
+}
+
+void CampoMinado::posicionarMinas() {
+    srand(static_cast<unsigned int>(time(0)));
+    int minasColocadas = 0;
+    while (minasColocadas < numMinas) {
+        int linha = rand() % tamanho;
+        int coluna = rand() % tamanho;
+        if (tabuleiro[linha][coluna] != '*') {
+            tabuleiro[linha][coluna] = '*';
+            minasColocadas++;
+        }
     }
 }
 
-// Calcular números ao redor das minas
-void CampoMinado::calcularNumeros() {
-    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
-    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+void CampoMinado::exibirTabuleiro() const {
+    std::cout << "  ";
+    for (int i = 0; i < tamanho; ++i)
+        std::cout << i << " ";
+    std::cout << "\n";
 
-    for (int i = 0; i < tamanho; i++) {
-        for (int j = 0; j < tamanho; j++) {
-            if (tabuleiro[i][j] == '*') continue;
+    for (int i = 0; i < tamanho; ++i) {
+        std::cout << i << " ";
+        for (int j = 0; j < tamanho; ++j) {
+            std::cout << tabuleiroVisivel[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+}
 
-            int minasAoRedor = 0;
-            for (int d = 0; d < 8; d++) {
-                int nx = i + dx[d];
-                int ny = j + dy[d];
-                if (nx >= 0 && nx < tamanho && ny >= 0 && ny < tamanho && tabuleiro[nx][ny] == '*') {
-                    minasAoRedor++;
+bool CampoMinado::jogadaValida(int linha, int coluna) const {
+    return linha >= 0 && linha < tamanho && coluna >= 0 && coluna < tamanho;
+}
+
+bool CampoMinado::revelarCelula(int linha, int coluna) {
+    if (!jogadaValida(linha, coluna) || tabuleiroVisivel[linha][coluna] != '-')
+        return false;
+
+    if (tabuleiro[linha][coluna] == '*') {
+        tabuleiroVisivel[linha][coluna] = '*';
+        return true; // Jogador atingiu uma mina
+    }
+
+    int minasAdjacentes = contarMinasAdjacentes(linha, coluna);
+    tabuleiroVisivel[linha][coluna] = minasAdjacentes + '0';
+
+    if (minasAdjacentes == 0) {
+        for (int i = -1; i <= 1; ++i) {
+            for (int j = -1; j <= 1; ++j) {
+                if (i != 0 || j != 0) {
+                    revelarCelula(linha + i, coluna + j);
                 }
             }
-            tabuleiro[i][j] = minasAoRedor + '0';
         }
     }
+
+    return false;
 }
 
-// Revelar posição
-void CampoMinado::revelar(int x, int y) {
-    if (x < 0 || y < 0 || x >= tamanho || y >= tamanho || tabuleiroVisivel[x][y] != '-') {
-        return;
-    }
-
-    tabuleiroVisivel[x][y] = tabuleiro[x][y];
-
-    if (tabuleiro[x][y] == '0') {
-        int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
-        int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
-        for (int d = 0; d < 8; d++) {
-            revelar(x + dx[d], y + dy[d]);
+int CampoMinado::contarMinasAdjacentes(int linha, int coluna) const {
+    int count = 0;
+    for (int i = -1; i <= 1; ++i) {
+        for (int j = -1; j <= 1; ++j) {
+            int novaLinha = linha + i;
+            int novaColuna = coluna + j;
+            if (jogadaValida(novaLinha, novaColuna) && tabuleiro[novaLinha][novaColuna] == '*') {
+                count++;
+            }
         }
     }
+    return count;
 }
 
-// Verificar vitória
 bool CampoMinado::verificarVitoria() const {
-    for (int i = 0; i < tamanho; i++) {
-        for (int j = 0; j < tamanho; j++) {
-            if (tabuleiroVisivel[i][j] == '-' && tabuleiro[i][j] != '*') {
+    for (int i = 0; i < tamanho; ++i) {
+        for (int j = 0; j < tamanho; ++j) {
+            if (tabuleiro[i][j] != '*' && tabuleiroVisivel[i][j] == '-') {
                 return false;
             }
         }
@@ -74,18 +96,27 @@ bool CampoMinado::verificarVitoria() const {
     return true;
 }
 
-// Verificar se perdeu
-bool CampoMinado::perdeu(int x, int y) const {
-    return tabuleiro[x][y] == '*';
-}
+void CampoMinado::jogar() {
+    bool gameOver = false;
+    while (!gameOver) {
+        exibirTabuleiro();
+        int linha, coluna;
+        std::cout << "Digite a linha e a coluna (separadas por espaÃ§o): ";
+        std::cin >> linha >> coluna;
 
-// Exibir tabuleiro visível
-void CampoMinado::exibirVisivel() const {
-    for (const auto& linha : tabuleiroVisivel) {
-        for (char c : linha) {
-            std::cout << c << ' ';
+        if (!jogadaValida(linha, coluna)) {
+            std::cout << "Jogada invÃ¡lida. Tente novamente.\n";
+            continue;
         }
-        std::cout << '\n';
+
+        if (revelarCelula(linha, coluna)) {
+            exibirTabuleiro();
+            std::cout << "VocÃª atingiu uma mina! Fim de jogo.\n";
+            gameOver = true;
+        } else if (verificarVitoria()) {
+            exibirTabuleiro();
+            std::cout << "ParabÃ©ns! VocÃª venceu o jogo.\n";
+            gameOver = true;
+        }
     }
 }
-
