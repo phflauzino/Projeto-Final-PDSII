@@ -19,7 +19,7 @@ A solução é baseada na estrutura modular de classes, utilizando Programação
 - Jogador: Representa um jogador, armazenando seu apelido e informações pessoais.
 - Jogo da Velha: Implementa as regras e funcionalidades do Jogo da Velha.
 - Lig 4: Gerencia a lógica do Conecta 4, verificando jogadas válidas e condições de vitória.
--Othello: Implementa as regras do Othello, com lógica para virar peças e contabilizar pontos.
+- Othello: Implementa as regras do Othello, com lógica para virar peças e contabilizar pontos.
 
 - Cada jogo estende a classe Tabuleiro e implementa suas regras específicas. O fluxo básico consiste em alternar entre jogadores, registrar jogadas e verificar condições de vitória ou empate.
 
