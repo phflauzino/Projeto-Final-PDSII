@@ -6,6 +6,7 @@
 #include "JogoDaVelha.hpp"
 #include "Lig4.hpp"
 #include "Othello.hpp"
+#include "campo_minado.hpp"
 
 bool validarEmail(const std::string& email) {
     const std::regex padraoEmail(R"(^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$)");
@@ -24,12 +25,14 @@ int main() {
         std::cout << "  3 - Jogar Othello.\n";
         std::cout << "  4 - Jogar Lig 4.\n";
         std::cout << "  5 - Jogar Jogo da Velha.\n";
-        std::cout << "  6 - Sair do sistema.\n";
+        std::cout << "  6 - Jogar Campo Minado.\n";
+		std::cout << "  7 - Sair do sistema.\n";
+        
 
         std::cout << "Digite a opção desejada: ";
         std::getline(std::cin, entrada);
 
-        if (entrada == "6") {
+        if (entrada == "7") {
             std::cout << "Jogo encerrado.\n";
             break;
         }
@@ -189,18 +192,28 @@ int main() {
                     break;
                 }
 
-                if (jogoDaVelha.verificarEmpate()) {
-                    jogoDaVelha.exibirTabuleiro();
-                    std::cout << "O jogo terminou empatado!\n";
-                    break;
-                }
-
-                jogoDaVelha.passarTurno();
+             if (jogoDaVelha.verificarEmpate()) {
+                jogoDaVelha.exibirTabuleiro();
+                std::cout << "O jogo terminou empatado!\n";
+                break;
             }
-        } else {
-            std::cout << "ERRO: opção desconhecida\n";
-        }
-    }
 
-    return 0;
+            jogoDaVelha.passarTurno();
+        }
+    } else if (entrada == "6") { // Jogar Campo Minado
+        if (jogadores.size() < 1) {
+            std::cout << "ERRO: É necessário ter pelo menos um jogador cadastrado para jogar Campo Minado.\n";
+            continue;
+        }
+
+        std::cout << "Iniciando o jogo Campo Minado...\n";
+        auto it = jogadores.begin();
+        Jogador jogador = it->second;
+        CampoMinado campoMinado(jogador);
+        campoMinado.jogar();
+    } else {
+        std::cout << "ERRO: opção desconhecida\n";
+    }
 }
+
+return 0;
