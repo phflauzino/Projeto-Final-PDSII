@@ -1,7 +1,7 @@
 #ifndef OTHELLO_HPP
 #define OTHELLO_HPP
 
-#include "Jogador.hpp"
+#include "jogador.hpp"
 #include <memory>
 #include <vector>
 
