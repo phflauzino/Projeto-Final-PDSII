@@ -5,10 +5,10 @@
 TEST_CASE("Teste de jogadas validas e invalidas") {
   JogoDaVelha jogo;
 
-  CHECK(jogo.fazerJogada(0, 0, 'X') == true);
-  CHECK(jogo.fazerJogada(0, 0, 'O') == false);
-  CHECK(jogo.fazerJogada(1, 1, 'O') == true);
-  CHECK(jogo.fazerJogada(3, 3, 'X') == false);
+  CHECK(jogo.fazerJogada(0, 0, 'X') == true);  
+  CHECK(jogo.fazerJogada(0, 0, 'O') == false); 
+  CHECK(jogo.fazerJogada(1, 1, 'O') == true);  
+  CHECK(jogo.fazerJogada(3, 3, 'X') == false); 
 }
 
 TEST_CASE("Teste de condicoes de vitoria") {
@@ -16,8 +16,8 @@ TEST_CASE("Teste de condicoes de vitoria") {
   jogo.fazerJogada(0, 0, 'X');
   jogo.fazerJogada(0, 1, 'X');
   jogo.fazerJogada(0, 2, 'X');
-  CHECK(jogo.verificarVitoria("X") == true);
-  CHECK(jogo.verificarVitoria("O") == false);
+  CHECK(jogo.verificarVitoria('X') == true);  
+  CHECK(jogo.verificarVitoria('O') == false); 
 }
 
 TEST_CASE("Teste de empate") {
@@ -31,10 +31,10 @@ TEST_CASE("Teste de empate") {
   jogo.fazerJogada(2, 0, 'O');
   jogo.fazerJogada(2, 1, 'X');
   jogo.fazerJogada(2, 2, 'O');
-  CHECK(jogo.verificarEmpate() == true);
+  CHECK(jogo.verificarEmpate() == true);  
 }
 
 TEST_CASE("Teste de excecoes") {
   JogoDaVelha jogo;
-  CHECK_THROWS_AS(jogo.fazerJogada(3, 3, 'X'), std::out_of_range);
+  CHECK_THROWS_AS(jogo.fazerJogada(3, 3, 'X'), std::out_of_range); // Exceção ao fazer jogada fora do tabuleiro
 }
