@@ -1,11 +1,11 @@
 #include <iostream>
 #include <unordered_map>
 #include <regex>
-#include "Jogador.hpp"
+#include "jogador.hpp"
 #include "utils.hpp"
 #include "JogoDaVelha.hpp"
-#include "Lig4.hpp"
-#include "Othello.hpp"
+#include "lig4.hpp"
+#include "othello.hpp"
 
 bool validarEmail(const std::string& email) {
     const std::regex padraoEmail(R"(^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$)");
