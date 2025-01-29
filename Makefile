@@ -1,14 +1,13 @@
-CXX		  := g++
-CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb
+CXX          := g++
+CXX_FLAGS    := -Wall -Wextra -std=c++11 -ggdb  # Alterado para C++11
 
-BIN		:= bin
-SRC		:= src
-INCLUDE	:= include
-LIB		:= lib
+BIN          := bin
+SRC          := src
+INCLUDE      := include
+LIB          := lib
 
-LIBRARIES	:=
-EXECUTABLE	:= main
-
+LIBRARIES    := 
+EXECUTABLE   := main
 
 all: $(BIN)/$(EXECUTABLE)
 
