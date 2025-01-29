@@ -17,3 +17,5 @@ public:
     bool verificarVitoria(char simbolo) const;
     void verificarVencedor() const; 
 };
+
+#endif
