@@ -1,4 +1,4 @@
-#include "Othello.hpp"
+#include "othello.hpp"
 #include <iostream>
 
 Othello::Othello(std::shared_ptr<Jogador> j1, std::shared_ptr<Jogador> j2)
