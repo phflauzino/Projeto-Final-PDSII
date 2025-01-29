@@ -1,5 +1,8 @@
 #include "tabuleiro.hpp"
 
+Tabuleiro::Tabuleiro() : linhas(0), colunas(0), tabuleiro(0, std::vector<char>(0)) {
+}
+
 Tabuleiro::Tabuleiro(int tamanho) : linhas(tamanho), colunas(tamanho) {
     tabuleiro.resize(linhas, std::vector<char>(colunas, ' '));
 }
