@@ -1,29 +1,39 @@
 #ifndef OTHELLO_HPP
 #define OTHELLO_HPP
 
-#include "tabuleiro.hpp"
-#include "jogador.hpp"
+#include "Jogador.hpp"
+#include <memory>
 #include <vector>
-#include <utility>
+
 class Othello {
 private:
-    Tabuleiro tabuleiro;
-    Jogador* jogadorPreto;
-    Jogador* jogadorBranco;
-    char jogadorAtual;
-    const std::vector<std::pair<int, int>> direcoes = {
-        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
-    };
-public:
-    // Construtor
-    Othello(Jogador* preto, Jogador* branco);
-    bool jogadaValida(int linha, int coluna) const;
+    std::shared_ptr<Jogador> jogador1, jogador2;  
+    bool turnoJogador1;  
+    std::vector<std::vector<char>> tabuleiro;  
+
+ 
+    void inicializarTabuleiro();
+
+    bool jogadaValida(int linha, int coluna);
+
+
     void capturarPecas(int linha, int coluna);
-    std::pair<int, int> calcularPontuacao() const;
-    bool verificarFimDeJogo() const;
-    bool verificarDisponibilidade(int linha, int coluna) const;
-    char getJogadorAtual() const;
-    void exibirJogadorAtual() const;
-    void verificarVencedor() const;
+
+public:
+
+    Othello(std::shared_ptr<Jogador> j1, std::shared_ptr<Jogador> j2);
+
+
+    void jogar();
+
+
+    bool verificarFimDeJogo();
+
+
+    void exibirJogadorAtual();
+
+
+    void exibirTabuleiro();
 };
-#endif
+
+#endif 
