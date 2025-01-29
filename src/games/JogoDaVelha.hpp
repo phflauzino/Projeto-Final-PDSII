@@ -1,25 +1,20 @@
-#ifndef JOGO_DA_VELHA_HPP
-#define JOGO_DA_VELHA_HPP
+#ifndef JOGODAVELHA_HPP
+#define JOGODAVELHA_HPP
 
 #include "tabuleiro.hpp"
-#include "jogador.hpp"
-#include <iostream>
-#include <vector>
 
 class JogoDaVelha : public Tabuleiro {
+private:
+    int turnoAtual;
+
 public:
     JogoDaVelha();
 
-    bool fazerJogada (int linha, int coluna, char jogador);
-
-    void exibirTabuleiro() const override; 
-
+    bool fazerJogada(int linha, int coluna, char jogador);
     bool verificarVitoria(char jogador) const;
-
     bool verificarEmpate() const;
-
-    void verificarVencedor() const;
+    void passarTurno();
+    int getTurnoAtual() const { return turnoAtual; }
 };
 
-#endif 
-
+#endif
