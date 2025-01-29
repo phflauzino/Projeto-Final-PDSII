@@ -1,17 +1,20 @@
 #include <iostream>
 #include <unordered_map>
 #include <regex>
+#include <fstream>
 #include "jogador.hpp"
 #include "utils.hpp"
 #include "JogoDaVelha.hpp"
 #include "lig4.hpp"
 #include "othello.hpp"
 
+// Função para validar o email
 bool validarEmail(const std::string& email) {
     const std::regex padraoEmail(R"(^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$)");
     return std::regex_match(email, padraoEmail);
 }
 
+// Função para cadastrar jogadores
 void cadastrarJogadores(std::unordered_map<std::string, Jogador>& jogadores) {
     std::string entrada;
 
@@ -69,6 +72,7 @@ void cadastrarJogadores(std::unordered_map<std::string, Jogador>& jogadores) {
     }
 }
 
+// Função para verificar se há jogadores suficientes
 bool verificarJogadoresSuficientes(const std::unordered_map<std::string, Jogador>& jogadores) {
     if (jogadores.size() < 2) {
         std::cout << "ERRO: É necessário ter pelo menos dois jogadores cadastrados para jogar.\n";
@@ -77,16 +81,129 @@ bool verificarJogadoresSuficientes(const std::unordered_map<std::string, Jogador
     return true;
 }
 
+// Função para salvar os jogadores em um arquivo
+void salvarJogadores(const std::unordered_map<std::string, Jogador>& jogadores) {
+    std::ofstream arquivo("jogadores.txt");
+
+    if (!arquivo.is_open()) {
+        std::cout << "ERRO: Não foi possível abrir o arquivo para salvar.\n";
+        return;
+    }
+
+    for (const auto& jogador : jogadores) {
+        arquivo << jogador.second.getApelido() << "\n"
+                << jogador.second.getNome() << "\n"
+                << jogador.second.getEmail() << "\n"
+                << jogador.second.getSenha() << "\n";
+    }
+
+    std::cout << "Jogadores salvos com sucesso!\n";
+    arquivo.close();
+}
+
+// Função para carregar os jogadores de um arquivo
+void carregarJogadores(std::unordered_map<std::string, Jogador>& jogadores) {
+    std::ifstream arquivo("jogadores.txt");
+
+    if (!arquivo.is_open()) {
+        std::cout << "Nenhum arquivo de jogadores encontrado, iniciando cadastro...\n";
+        return;  // Se o arquivo não existir, simplesmente retorna
+    }
+
+    std::string apelido, nome, email, senha;
+    while (std::getline(arquivo, apelido) && std::getline(arquivo, nome) &&
+           std::getline(arquivo, email) && std::getline(arquivo, senha)) {
+        jogadores[apelido] = Jogador(apelido, nome, email, senha);
+    }
+
+    std::cout << "Jogadores carregados com sucesso!\n";
+    arquivo.close();
+}
+
+// Função para login
+bool login(const std::unordered_map<std::string, Jogador>& jogadores, std::shared_ptr<Jogador>& jogadorLogado) {
+    std::string apelido, senha;
+    
+    std::cout << "Digite seu apelido: ";
+    std::getline(std::cin, apelido);
+
+    // Verificar se o jogador existe
+    auto it = jogadores.find(apelido);
+    if (it == jogadores.end()) {
+        std::cout << "Jogador não encontrado.\n";
+        return false;
+    }
+
+    std::cout << "Digite sua senha: ";
+    std::getline(std::cin, senha);
+
+    // Verificar se a senha está correta
+    if (it->second.getSenha() == senha) {
+        jogadorLogado = std::make_shared<Jogador>(it->second);
+        std::cout << "Login bem-sucedido, " << apelido << "!\n";
+        return true;
+    } else {
+        std::cout << "Senha incorreta.\n";
+        return false;
+    }
+}
+
+// Função para entrar ou cadastrar um jogador
+void entrarOuCadastrar(std::unordered_map<std::string, Jogador>& jogadores) {
+    std::string opcao;
+    std::cout << "Escolha uma opção:\n";
+    std::cout << "1 - Cadastrar um novo jogador\n";
+    std::cout << "2 - Fazer login\n";
+    std::cout << "Digite sua opção (1 ou 2): ";
+    std::getline(std::cin, opcao);
+
+    if (opcao == "1") {
+        cadastrarJogadores(jogadores);
+    } else if (opcao == "2") {
+        std::shared_ptr<Jogador> jogadorLogado;
+        if (login(jogadores, jogadorLogado)) {
+            std::cout << "Bem-vindo de volta, " << jogadorLogado->getApelido() << "!\n";
+        } else {
+            std::cout << "Login falhou.\n";
+        }
+    } else {
+        std::cout << "Opção inválida. Tente novamente.\n";
+        entrarOuCadastrar(jogadores);
+    }
+}
+
+// Função para garantir o login de dois jogadores
+void garantirLoginDoisJogadores(std::unordered_map<std::string, Jogador>& jogadores, std::shared_ptr<Jogador>& jogador1, std::shared_ptr<Jogador>& jogador2) {
+    while (true) {
+        std::cout << "\n** Jogador 1 **\n";
+        if (login(jogadores, jogador1)) {
+            std::cout << "Jogador 1 logado com sucesso!\n";
+            break;
+        }
+
+        std::cout << "Tente novamente para o Jogador 1.\n";
+    }
+
+    while (true) {
+        std::cout << "\n** Jogador 2 **\n";
+        if (login(jogadores, jogador2)) {
+            std::cout << "Jogador 2 logado com sucesso!\n";
+            break;
+        }
+
+        std::cout << "Tente novamente para o Jogador 2.\n";
+    }
+}
+
+// Função para selecionar o jogo
 void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
+    std::shared_ptr<Jogador> jogador1, jogador2;
+    
+    garantirLoginDoisJogadores(jogadores, jogador1, jogador2);
+
     std::string entrada;
 
     while (true) {
-        if (!verificarJogadoresSuficientes(jogadores)) {
-            std::cout << "Pressione qualquer tecla para voltar ao menu de cadastro de jogadores.\n";
-            std::cin.get();
-            return;
-        }
-
         std::cout << "\nEscolha um jogo para jogar:\n";
         std::cout << "  3 - Jogar Othello.\n";
         std::cout << "  4 - Jogar Lig 4.\n";
@@ -102,34 +219,21 @@ void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
 
         if (entrada == "3") {
             std::cout << "Iniciando o jogo Othello...\n";
-            auto it = jogadores.begin();
-            std::shared_ptr<Jogador> jogador1 = std::make_shared<Jogador>(it->second);
-            ++it;
-            std::shared_ptr<Jogador> jogador2 = std::make_shared<Jogador>(it->second);
             Othello othello(jogador1, jogador2);
-
             othello.jogar();
         } else if (entrada == "4") {
             std::cout << "Iniciando o jogo Lig 4...\n";
-            auto it = jogadores.begin();
-            Jogador jogador1 = it->second;
-            ++it;
-            Jogador jogador2 = it->second;
-            Lig4 lig4(jogador1, jogador2);
+            Lig4 lig4(*jogador1, *jogador2);
             lig4.jogar();
         } else if (entrada == "5") {
             std::cout << "Iniciando o jogo Jogo da Velha...\n";
-            auto it = jogadores.begin();
-            Jogador jogador1 = it->second;
-            ++it;
-            Jogador jogador2 = it->second;
             JogoDaVelha jogoDaVelha;
 
             while (true) {
                 jogoDaVelha.exibirTabuleiro();
                 int linha, coluna;
                 char jogadorAtual = (jogoDaVelha.getTurnoAtual() % 2 == 0) ? 'X' : 'O';
-                std::cout << "Jogador " << (jogadorAtual == 'X' ? jogador1.getApelido() : jogador2.getApelido())
+                std::cout << "Jogador " << (jogadorAtual == 'X' ? jogador1->getApelido() : jogador2->getApelido())
                           << " (" << jogadorAtual << "), faça sua jogada (linha coluna): ";
                 std::cin >> linha >> coluna;
 
@@ -140,7 +244,7 @@ void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
 
                 if (jogoDaVelha.verificarVitoria(jogadorAtual)) {
                     jogoDaVelha.exibirTabuleiro();
-                    std::cout << "Jogador " << (jogadorAtual == 'X' ? jogador1.getApelido() : jogador2.getApelido())
+                    std::cout << "Jogador " << (jogadorAtual == 'X' ? jogador1->getApelido() : jogador2->getApelido())
                               << " (" << jogadorAtual << ") venceu!\n";
                     break;
                 }
@@ -162,9 +266,18 @@ void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
 int main() {
     std::unordered_map<std::string, Jogador> jogadores;
 
-    cadastrarJogadores(jogadores);
+    // Carregar jogadores do arquivo ao iniciar o programa
+    carregarJogadores(jogadores);
 
+    // Entrar ou cadastrar jogador
+    entrarOuCadastrar(jogadores);
+
+    // Salvar os jogadores no arquivo após o cadastro
+    salvarJogadores(jogadores);
+
+    // Selecionar o jogo
     selecionarJogo(jogadores);
 
     return 0;
 }
+
