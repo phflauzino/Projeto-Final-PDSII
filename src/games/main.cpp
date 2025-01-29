@@ -3,8 +3,8 @@
 #include <regex>
 #include <fstream>
 #include <stdexcept>
-#include "jogador.hpp"
-#include "utils.hpp"
+#include "../players/jogador.hpp"
+#include "../utils/utils.hpp"
 #include "JogoDaVelha.hpp"
 #include "lig4.hpp"
 #include "othello.hpp"
@@ -264,13 +264,16 @@ void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
 
             if (entrada == "3") {
                 std::cout << "Iniciando o jogo Othello...\n";
-                // Código do jogo Othello
+                Othello jogoOthello(jogador1, jogador2); 
+                jogoOthello.jogar();  
             } else if (entrada == "4") {
                 std::cout << "Iniciando o jogo Lig 4...\n";
-                // Código do jogo Lig 4
+                Lig4 jogoLig4(jogador1, jogador2); 
+                jogoLig4.jogar();  
             } else if (entrada == "5") {
                 std::cout << "Iniciando o jogo Jogo da Velha...\n";
-                // Código do jogo Jogo da Velha
+                JogoDaVelha jogoJogoDaVelha;  
+                jogoJogoDaVelha.jogar();  
             } else {
                 std::cout << "ERRO: opção desconhecida\n";
             }
