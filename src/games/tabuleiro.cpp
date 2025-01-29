@@ -1,39 +1,25 @@
-#include "tabuleiro.hpp"
+#ifndef TABULEIRO_HPP
+#define TABULEIRO_HPP
 
+#include <vector>
+#include <iostream>
 
-Tabuleiro::Tabuleiro() : tamanho(3) {
-    tabuleiro = std::vector<std::vector<char>>(tamanho, std::vector<char>(tamanho, ' '));
-}
+class Tabuleiro {
+protected:
+    int linhas;
+    int colunas;
+    std::vector<std::vector<char>> tabuleiro;
 
-Tabuleiro::Tabuleiro(int tamanho) : tamanho(tamanho) {
-    tabuleiro = std::vector<std::vector<char>>(tamanho, std::vector<char>(tamanho, ' '));
-}
+public:
+    Tabuleiro(int tamanho);
+    Tabuleiro(int linhas, int colunas);
 
-void Tabuleiro::exibirTabuleiro() const {
-    for (int i = 0; i < tamanho; ++i) {
-        for (int j = 0; j < tamanho; ++j) {
-            std::cout << tabuleiro[i][j];
-            if (j < tamanho - 1) std::cout << " | ";
-        }
-        std::cout << std::endl;
-        if (i < tamanho - 1) {
-            for (int k = 0; k < tamanho; ++k) {
-                std::cout << "---";
-                if (k < tamanho - 1) std::cout << "+";
-            }
-            std::cout << std::endl;
-        }
-    }
-}
+    virtual void exibirTabuleiro() const;
+    bool estaVazio(int linha, int coluna) const;
+    void setPosicao(int linha, int coluna, char valor);
+    char getPosicao(int linha, int coluna) const;
+    int getLinhas() const { return linhas; }
+    int getColunas() const { return colunas; }
+};
 
-void Tabuleiro::limparTabuleiro() {
-    for (auto& linha : tabuleiro) {
-        for (char& celula : linha) {
-            celula = ' ';
-        }
-    }
-}
-
-int Tabuleiro::getTamanho() const {
-    return tamanho;
-}
+#endif
