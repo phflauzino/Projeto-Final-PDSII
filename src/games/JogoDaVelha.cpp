@@ -12,7 +12,7 @@ bool JogoDaVelha::fazerJogada(int linha, int coluna, char jogador) {
     return false;
 }
 
-bool JodoDaVelha::verificarVitoria(string jogador) const {
+bool JogoDaVelha::verificarVitoria(char jogador) const {
     for (int i = 0; i < 3; ++i) {
         // Confere linhas
         if (tabuleiro[i][0] == jogador && tabuleiro[i][1] == jogador && tabuleiro[i][2] == jogador)
@@ -23,7 +23,7 @@ bool JodoDaVelha::verificarVitoria(string jogador) const {
     }
         //Confere Diagonais
         if (tabuleiro[0][0] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][2] == jogador) ||
-           (tabuleiro[0][2] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][0] == jogador); {
+           (tabuleiro[0][2] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][0] == jogador) {
             return true;
 }  
 return false;
