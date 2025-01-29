@@ -3,24 +3,23 @@
 
 #include <vector>
 #include <iostream>
-#include <string>
 
 class Tabuleiro {
 protected:
-    std::vector<std::vector<char>> tabuleiro; 
-    int tamanho; 
+    int linhas;
+    int colunas;
+    std::vector<std::vector<char>> tabuleiro;
 
 public:
-    
-    Tabuleiro();
-
     Tabuleiro(int tamanho);
+    Tabuleiro(int linhas, int colunas);
 
-    void exibirTabuleiro() const;
-
-    void limparTabuleiro();
-
-    int getTamanho() const;
+    virtual void exibirTabuleiro() const;
+    bool estaVazio(int linha, int coluna) const;
+    void setPosicao(int linha, int coluna, char valor);
+    char getPosicao(int linha, int coluna) const;
+    int getLinhas() const { return linhas; }
+    int getColunas() const { return colunas; }
 };
 
 #endif
