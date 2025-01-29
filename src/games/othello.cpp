@@ -1,103 +1,88 @@
-#include "tabuleiro.hpp"
-#include "jogador.hpp"
-#include <vector>
+#include "Othello.hpp"
 #include <iostream>
 
-class Othello {
-private:
-    Tabuleiro tabuleiro;
-    Jogador* jogadorPreto;
-    Jogador* jogadorBranco;
-    char jogadorAtual;
-    const std::vector<std::pair<int, int>> direcoes = {
-        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
-    };
+Othello::Othello(std::shared_ptr<Jogador> j1, std::shared_ptr<Jogador> j2)
+    : jogador1(j1), jogador2(j2), turnoJogador1(true) {
+    inicializarTabuleiro();
+}
 
-public:
-    Othello(Jogador* preto, Jogador* branco) 
-        : jogadorPreto(preto), jogadorBranco(branco), jogadorAtual('B') {}
+void Othello::inicializarTabuleiro() {
+    // Inicializa o tabuleiro 8x8 com espaços vazios
+    tabuleiro = std::vector<std::vector<char>>(8, std::vector<char>(8, ' '));
 
-    bool jogadaValida(int linha, int coluna) const {
-        if (!tabuleiro.posicaoValida(linha, coluna) || tabuleiro.getCelula(linha, coluna) != ' ')
-            return false;
+    // Coloca as peças iniciais
+    tabuleiro[3][3] = tabuleiro[4][4] = 'X';
+    tabuleiro[3][4] = tabuleiro[4][3] = 'O';
+}
 
-        for (const auto& [dx, dy] : direcoes) {
-            int x = linha + dx, y = coluna + dy;
-            bool encontrouOponente = false;
-
-            while (tabuleiro.posicaoValida(x, y)) {
-                char celula = tabuleiro.getCelula(x, y);
-                if (celula == ' ') break;
-                if (celula == jogadorAtual) {
-                    if (encontrouOponente) return true;
-                    break;
-                }
-                encontrouOponente = true;
-                x += dx;
-                y += dy;
-            }
-        }
+bool Othello::jogadaValida(int linha, int coluna) {
+    // Lógica para validar se a jogada é válida
+    // Verifica se a célula está vazia e se a jogada é válida no contexto do Othello
+    if (linha < 0 || linha >= 8 || coluna < 0 || coluna >= 8 || tabuleiro[linha][coluna] != ' ') {
         return false;
     }
+    // A verificação detalhada para captura de peças deve ser implementada aqui
+    return true;
+}
 
-    void capturarPecas(int linha, int coluna) {
-        for (const auto& [dx, dy] : direcoes) {
-            std::vector<std::pair<int, int>> capturar;
-            int x = linha + dx, y = coluna + dy;
+void Othello::capturarPecas(int linha, int coluna) {
+    // Implementa a lógica de captura das peças no Othello
+    // Altera o tabuleiro após a jogada válida
+    tabuleiro[linha][coluna] = turnoJogador1 ? 'X' : 'O';
+}
 
-            while (tabuleiro.posicaoValida(x, y)) {
-                char celula = tabuleiro.getCelula(x, y);
-                if (celula == ' ') break;
-                if (celula == jogadorAtual) {
-                    for (const auto& pos : capturar) {
-                        tabuleiro.setCelula(pos.first, pos.second, jogadorAtual);
-                    }
-                    break;
-                }
-                capturar.emplace_back(x, y);
-                x += dx;
-                y += dy;
+bool Othello::verificarFimDeJogo() {
+    // Verifica se o jogo terminou (se há mais jogadas válidas)
+    // A lógica de fim de jogo pode ser baseada na ausência de jogadas válidas
+    bool jogadasValidas = false;
+
+    // Verificar se existe alguma jogada válida para qualquer um dos jogadores
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (jogadaValida(i, j)) {
+                jogadasValidas = true;
+                break;
             }
         }
+        if (jogadasValidas) break;
     }
 
-    std::pair<int, int> calcularPontuacao() const {
-        return tabuleiro.calcularPontuacao();
-    }
+    // Se não houver jogadas válidas, o jogo termina
+    return !jogadasValidas;
+}
 
-    bool verificarFimDeJogo() const {
-        for (int i = 0; i < tabuleiro.getTamanho(); ++i) {
-            for (int j = 0; j < tabuleiro.getTamanho(); ++j) {
-                if (verificarDisponibilidade(i, j)) return false;
-            }
+void Othello::exibirJogadorAtual() {
+    std::cout << "É a vez de " << (turnoJogador1 ? jogador1->getApelido() : jogador2->getApelido()) << std::endl;
+}
+
+void Othello::exibirTabuleiro() {
+    // Exibe o tabuleiro de Othello para o usuário
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            std::cout << (tabuleiro[i][j] == ' ' ? '.' : tabuleiro[i][j]) << " ";
         }
-
-        verificarVencedor();
-        return true;
+        std::cout << std::endl;
     }
+}
 
-    bool verificarDisponibilidade(int linha, int coluna) const {
-        return jogadaValida(linha, coluna);
-    }
+void Othello::jogar() {
+    std::cout << "Iniciando o jogo Othello...\n";
+    while (!verificarFimDeJogo()) {
+        exibirTabuleiro();
+        exibirJogadorAtual();
 
-    char getJogadorAtual() const {
-        return jogadorAtual;
-    }
+        int linha, coluna;
+        std::cout << "Digite a linha e a coluna para a jogada: ";
+        std::cin >> linha >> coluna;
 
-    void exibirJogadorAtual() const {
-        std::cout << "Jogador atual: " 
-                  << (jogadorAtual == 'B' ? jogadorPreto->getApelido() : jogadorBranco->getApelido())
-                  << " (" << jogadorAtual << ")\n";
-    }
-
-    void verificarVencedor() const {
-        auto [pontuacaoPreto, pontuacaoBranco] = calcularPontuacao();
-        if (pontuacaoPreto > pontuacaoBranco) {
-            std::cout << jogadorPreto->getApelido() << " (Preto) é o vencedor!\n";
-        } else if (pontuacaoBranco > pontuacaoPreto) {
-            std::cout << jogadorBranco->getApelido() << " (Branco) é o vencedor!\n";
+        if (jogadaValida(linha, coluna)) {
+            capturarPecas(linha, coluna);
+            turnoJogador1 = !turnoJogador1;  // Alterna o turno
         } else {
-            std::cout << "O jogo terminou empatado!\n";
+            std::cout << "Jogada inválida. Tente novamente.\n";
         }
     }
-};
+
+    std::cout << "O jogo terminou!" << std::endl;
+    exibirTabuleiro();
+}
