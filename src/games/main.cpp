@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <regex>
-#include "jogador.hpp"
+#include "Jogador.hpp"
 #include "utils.hpp"
 #include "JogoDaVelha.hpp"
 #include "Lig4.hpp"
@@ -12,20 +12,86 @@ bool validarEmail(const std::string& email) {
     return std::regex_match(email, padraoEmail);
 }
 
-int main() {
-    std::unordered_map<std::string, Jogador> jogadores;
+void cadastrarJogadores(std::unordered_map<std::string, Jogador>& jogadores) {
     std::string entrada;
 
     while (true) {
-        std::cout << "\nBem-vindo ao Jogo! Escolha uma opção:\n";
-        std::cout << "  0 - Entrar.\n";
-        std::cout << "  1 - Cadastrar um novo jogador.\n";
-        std::cout << "  2 - Remover um jogador.\n";
+        std::cout << "\nBem-vindo ao sistema de cadastro de jogadores!\n";
+        std::cout << "Digite 's' para sair do cadastro ou qualquer outra tecla para continuar.\n";
+        std::getline(std::cin, entrada);
+
+        if (entrada == "s") {
+            break;
+        }
+
+        std::cout << "Digite o apelido do jogador: ";
+        std::string apelido;
+        std::getline(std::cin, apelido);
+
+        if (apelido.empty()) {
+            std::cout << "ERRO: O apelido não pode estar vazio.\n";
+            continue;
+        }
+
+        std::cout << "Digite o nome do jogador: ";
+        std::string nome;
+        std::getline(std::cin, nome);
+
+        if (nome.empty()) {
+            std::cout << "ERRO: O nome não pode estar vazio.\n";
+            continue;
+        }
+
+        std::cout << "Digite o email do jogador: ";
+        std::string email;
+        std::getline(std::cin, email);
+
+        if (!validarEmail(email)) {
+            std::cout << "ERRO: Email inválido.\n";
+            continue;
+        }
+
+        std::cout << "Digite a senha do jogador: ";
+        std::string senha;
+        std::getline(std::cin, senha);
+
+        if (senha.empty()) {
+            std::cout << "ERRO: A senha não pode estar vazia.\n";
+            continue;
+        }
+
+        if (jogadores.find(apelido) != jogadores.end()) {
+            std::cout << "ERRO: jogador já existente\n";
+        } else {
+            jogadores[apelido] = {apelido, nome, email, senha};
+            std::cout << "Jogador " << apelido << " cadastrado com sucesso\n";
+        }
+    }
+}
+
+bool verificarJogadoresSuficientes(const std::unordered_map<std::string, Jogador>& jogadores) {
+    if (jogadores.size() < 2) {
+        std::cout << "ERRO: É necessário ter pelo menos dois jogadores cadastrados para jogar.\n";
+        return false;
+    }
+    return true;
+}
+
+void selecionarJogo(std::unordered_map<std::string, Jogador>& jogadores) {
+    std::string entrada;
+
+    while (true) {
+        if (!verificarJogadoresSuficientes(jogadores)) {
+            std::cout << "Pressione qualquer tecla para voltar ao menu de cadastro de jogadores.\n";
+            std::cin.get();
+            return;
+        }
+
+        std::cout << "\nEscolha um jogo para jogar:\n";
         std::cout << "  3 - Jogar Othello.\n";
         std::cout << "  4 - Jogar Lig 4.\n";
         std::cout << "  5 - Jogar Jogo da Velha.\n";
         std::cout << "  6 - Sair do sistema.\n";
-
         std::cout << "Digite a opção desejada: ";
         std::getline(std::cin, entrada);
 
@@ -34,121 +100,16 @@ int main() {
             break;
         }
 
-        if (entrada == "1") { // Cadastrar Jogador
-            std::cout << "Digite o apelido do jogador: ";
-            std::string apelido;
-            std::getline(std::cin, apelido);
-
-            if (apelido.empty()) {
-                std::cout << "ERRO: O apelido não pode estar vazio.\n";
-                continue;
-            }
-
-            std::cout << "Digite o nome do jogador: ";
-            std::string nome;
-            std::getline(std::cin, nome);
-
-            if (nome.empty()) {
-                std::cout << "ERRO: O nome não pode estar vazio.\n";
-                continue;
-            }
-
-            std::cout << "Digite o email do jogador: ";
-            std::string email;
-            std::getline(std::cin, email);
-
-            if (!validarEmail(email)) {
-                std::cout << "ERRO: Email inválido.\n";
-                continue;
-            }
-
-            std::cout << "Digite a senha do jogador: ";
-            std::string senha;
-            std::getline(std::cin, senha);
-
-            if (senha.empty()) {
-                std::cout << "ERRO: A senha não pode estar vazia.\n";
-                continue;
-            }
-
-            if (jogadores.find(apelido) != jogadores.end()) {
-                std::cout << "ERRO: jogador já existente\n";
-            } else {
-                jogadores[apelido] = {apelido, nome, email, senha};
-                std::cout << "Jogador " << apelido << " cadastrado com sucesso\n";
-            }
-        } else if (entrada == "2") { // Remover Jogador
-            std::cout << "Digite o apelido do jogador a ser removido: ";
-            std::string apelido;
-            std::getline(std::cin, apelido);
-
-            if (apelido.empty()) {
-                std::cout << "ERRO: O apelido não pode estar vazio.\n";
-                continue;
-            }
-
-            if (jogadores.find(apelido) == jogadores.end()) {
-                std::cout << "ERRO: jogador inexistente\n";
-            } else {
-                jogadores.erase(apelido);
-                std::cout << "Jogador " << apelido << " removido com sucesso\n";
-            }
-        } else if (entrada == "0") { // Entrar no sistema
-            std::cout << "Digite o apelido: ";
-            std::string apelido;
-            std::getline(std::cin, apelido);
-
-            if (apelido.empty()) {
-                std::cout << "ERRO: O apelido não pode estar vazio.\n";
-                continue;
-            }
-
-            std::cout << "Digite a senha: ";
-            std::string senha;
-            std::getline(std::cin, senha);
-
-            if (senha.empty()) {
-                std::cout << "ERRO: A senha não pode estar vazia.\n";
-                continue;
-            }
-
-            if (jogadores.find(apelido) != jogadores.end() && jogadores[apelido].getSenha() == senha) {
-                std::cout << "Bem-vindo, " << jogadores[apelido].getNome() << "!\n";
-            } else {
-                std::cout << "ERRO: apelido ou senha incorretos\n";
-                continue;
-            }
-        } else if (entrada == "3") { // Jogar Othello
-            if (jogadores.size() < 2) {
-                std::cout << "ERRO: É necessário ter pelo menos dois jogadores cadastrados para jogar Othello.\n";
-                continue;
-            }
-
+        if (entrada == "3") {
             std::cout << "Iniciando o jogo Othello...\n";
             auto it = jogadores.begin();
-            Jogador* jogador1 = &it->second;
+            std::shared_ptr<Jogador> jogador1 = std::make_shared<Jogador>(it->second);
             ++it;
-            Jogador* jogador2 = &it->second;
+            std::shared_ptr<Jogador> jogador2 = std::make_shared<Jogador>(it->second);
             Othello othello(jogador1, jogador2);
 
-            while (!othello.verificarFimDeJogo()) {
-                othello.exibirJogadorAtual();
-                int linha, coluna;
-                std::cout << "Digite a linha e a coluna: ";
-                std::cin >> linha >> coluna;
-
-                if (othello.jogadaValida(linha, coluna)) {
-                    othello.capturarPecas(linha, coluna);
-                } else {
-                    std::cout << "Jogada inválida. Tente novamente.\n";
-                }
-            }
-        } else if (entrada == "4") { // Jogar Lig 4
-            if (jogadores.size() < 2) {
-                std::cout << "ERRO: É necessário ter pelo menos dois jogadores cadastrados para jogar Lig 4.\n";
-                continue;
-            }
-
+            othello.jogar();
+        } else if (entrada == "4") {
             std::cout << "Iniciando o jogo Lig 4...\n";
             auto it = jogadores.begin();
             Jogador jogador1 = it->second;
@@ -156,12 +117,7 @@ int main() {
             Jogador jogador2 = it->second;
             Lig4 lig4(jogador1, jogador2);
             lig4.jogar();
-        } else if (entrada == "5") { // Jogar Jogo da Velha
-            if (jogadores.size() < 2) {
-                std::cout << "ERRO: É necessário ter pelo menos dois jogadores cadastrados para jogar Jogo da Velha.\n";
-                continue;
-            }
-
+        } else if (entrada == "5") {
             std::cout << "Iniciando o jogo Jogo da Velha...\n";
             auto it = jogadores.begin();
             Jogador jogador1 = it->second;
@@ -201,6 +157,14 @@ int main() {
             std::cout << "ERRO: opção desconhecida\n";
         }
     }
+}
+
+int main() {
+    std::unordered_map<std::string, Jogador> jogadores;
+
+    cadastrarJogadores(jogadores);
+
+    selecionarJogo(jogadores);
 
     return 0;
 }
