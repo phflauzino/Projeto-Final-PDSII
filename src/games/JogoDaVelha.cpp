@@ -39,3 +39,32 @@ bool JogoDaVelha::verificarEmpate() const {
 void JogoDaVelha::passarTurno() {
     turnoAtual++;
 }
+
+void JogoDaVelha::jogar() {
+    bool fimDeJogo = false;
+    char jogadorAtual = 'X';  // Começa com o jogador X
+
+    while (!fimDeJogo) {
+        exibirTabuleiro();
+        std::cout << "Jogador " << jogadorAtual << ", faça sua jogada (linha, coluna): ";
+        int linha, coluna;
+        std::cin >> linha >> coluna;
+
+        if (fazerJogada(linha, coluna, jogadorAtual)) {
+            if (verificarVitoria(jogadorAtual)) {
+                exibirTabuleiro();
+                std::cout << "Jogador " << jogadorAtual << " venceu!\n";
+                fimDeJogo = true;
+            } else if (verificarEmpate()) {
+                exibirTabuleiro();
+                std::cout << "Empate!\n";
+                fimDeJogo = true;
+            } else {
+                // Alterna entre os jogadores
+                jogadorAtual = (jogadorAtual == 'X') ? 'O' : 'X';
+            }
+        } else {
+            std::cout << "Jogada inválida, tente novamente.\n";
+        }
+    }
+}
